@@ -1,4 +1,4 @@
-﻿namespace SunamoStringSubstring.Args;
+namespace SunamoStringSubstring.Args;
 
 /// <summary>
 /// 23-1-23 jsem ho přesunul zpět do SunamoStringSubstring, aby neměl už žádné deps
