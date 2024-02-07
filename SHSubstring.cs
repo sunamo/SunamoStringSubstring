@@ -1,8 +1,7 @@
 
+using SunamoArgs;
+
 namespace SunamoStringSubstring;
-using SunamoStringSubstring.Args;
-
-
 public class SHSubstring
 {
     /// <summary>
