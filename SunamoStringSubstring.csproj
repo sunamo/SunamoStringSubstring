@@ -7,8 +7,6 @@
     <Description>Methods for gets parts of the strings</Description>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="SunamoArgs" Version="24.2.6.4" />
-    <PackageReference Include="SunamoExceptions" Version="24.2.6.3" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Args\" />
