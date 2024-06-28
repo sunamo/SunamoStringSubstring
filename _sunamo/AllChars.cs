@@ -1,3 +1,5 @@
+
+namespace SunamoStringSubstring;
 public class AllChars
 {
     public static List<char> vsZnakyWithoutSpecial;
