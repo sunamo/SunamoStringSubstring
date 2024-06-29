@@ -4,7 +4,7 @@ namespace SunamoStringSubstring;
 /// <summary>
 /// 23-1-23 jsem ho přesunul zpět do SunamoStringSubstring, aby neměl už žádné deps
 /// </summary>
-internal class SubstringArgs
+public class SubstringArgs
 {
     /// <summary>
     /// Was before created this class
