@@ -1,6 +1,3 @@
-
-
-
 namespace SunamoStringSubstring;
 public class SHSubstring
 {
