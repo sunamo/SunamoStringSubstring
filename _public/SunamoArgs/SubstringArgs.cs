@@ -1,15 +1,10 @@
 namespace SunamoStringSubstring._public.SunamoArgs;
 
-
-
-
-
 public class SubstringArgs
 {
-    
-    
-    
-    public bool returnInputIfInputIsShorterThanA3 = false;
+    public static SubstringArgs Instance = new();
     public bool returnInputIfIndexFromIsLessThanIndexTo = false;
-    public static SubstringArgs Instance = new SubstringArgs();
+
+
+    public bool returnInputIfInputIsShorterThanA3 = false;
 }
