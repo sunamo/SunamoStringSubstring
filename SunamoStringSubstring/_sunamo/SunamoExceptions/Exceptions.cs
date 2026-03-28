@@ -1,55 +1,79 @@
 namespace SunamoStringSubstring._sunamo.SunamoExceptions;
 
-// © www.sunamo.cz. All Rights Reserved.
+/// <summary>
+/// Provides helper methods for exception message formatting and stack trace inspection.
+/// </summary>
 internal sealed partial class Exceptions
 {
-    #region Other
-    internal static string CheckBefore(string before)
+    /// <summary>
+    /// Prepends a prefix to an error message if the prefix is not null or whitespace.
+    /// </summary>
+    /// <param name="prefix">The prefix to prepend, or null/empty for no prefix.</param>
+    /// <returns>The formatted prefix followed by ": " or an empty string.</returns>
+    internal static string CheckBefore(string prefix)
     {
-        return string.IsNullOrWhiteSpace(before) ? string.Empty : before + ": ";
+        return string.IsNullOrWhiteSpace(prefix) ? string.Empty : prefix + ": ";
     }
 
+    /// <summary>
+    /// Retrieves the type name, method name, and full stack trace text of the calling code.
+    /// </summary>
+    /// <param name="isFillingAlsoFirstTwo">When true, also extracts the type and method name from the first non-ThrowEx frame.</param>
+    /// <returns>A tuple containing type name, method name, and the joined stack trace lines.</returns>
     internal static Tuple<string, string, string> PlaceOfException(
-bool fillAlsoFirstTwo = true)
+        bool isFillingAlsoFirstTwo = true)
     {
-        StackTrace st = new();
-        var value = st.ToString();
-        var lines = value.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        StackTrace stackTrace = new();
+        var stackTraceText = stackTrace.ToString();
+        var lines = stackTraceText.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
         lines.RemoveAt(0);
-        var i = 0;
-        string type = string.Empty;
+        var index = 0;
+        string typeName = string.Empty;
         string methodName = string.Empty;
-        for (; i < lines.Count; i++)
+        for (; index < lines.Count; index++)
         {
-            var item = lines[i];
-            if (fillAlsoFirstTwo)
-                if (!item.StartsWith("   at ThrowEx"))
+            var line = lines[index];
+            if (isFillingAlsoFirstTwo)
+                if (!line.StartsWith("   at ThrowEx"))
                 {
-                    TypeAndMethodName(item, out type, out methodName);
-                    fillAlsoFirstTwo = false;
+                    TypeAndMethodName(line, out typeName, out methodName);
+                    isFillingAlsoFirstTwo = false;
                 }
-            if (item.StartsWith("at System."))
+            if (line.StartsWith("at System."))
             {
                 lines.Add(string.Empty);
                 lines.Add(string.Empty);
                 break;
             }
         }
-        return new Tuple<string, string, string>(type, methodName, string.Join(Environment.NewLine, lines));
+        return new Tuple<string, string, string>(typeName, methodName, string.Join(Environment.NewLine, lines));
     }
-    internal static void TypeAndMethodName(string lines, out string type, out string methodName)
+
+    /// <summary>
+    /// Extracts the type name and method name from a single stack trace line.
+    /// </summary>
+    /// <param name="stackTraceLine">A single line from a stack trace.</param>
+    /// <param name="typeName">The extracted type name.</param>
+    /// <param name="methodName">The extracted method name.</param>
+    internal static void TypeAndMethodName(string stackTraceLine, out string typeName, out string methodName)
     {
-        var s2 = lines.Split("at ")[1].Trim();
-        var text = s2.Split("(")[0];
-        var parameter = text.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-        methodName = parameter[^1];
-        parameter.RemoveAt(parameter.Count - 1);
-        type = string.Join(".", parameter);
+        var afterAt = stackTraceLine.Split("at ")[1].Trim();
+        var qualifiedName = afterAt.Split("(")[0];
+        var parts = qualifiedName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        methodName = parts[^1];
+        parts.RemoveAt(parts.Count - 1);
+        typeName = string.Join(".", parts);
     }
-    internal static string CallingMethod(int value = 1)
+
+    /// <summary>
+    /// Returns the name of the calling method at the specified frame depth.
+    /// </summary>
+    /// <param name="frameDepth">The number of frames to skip in the call stack (default is 1).</param>
+    /// <returns>The name of the calling method, or an error message if it cannot be determined.</returns>
+    internal static string CallingMethod(int frameDepth = 1)
     {
         StackTrace stackTrace = new();
-        var methodBase = stackTrace.GetFrame(value)?.GetMethod();
+        var methodBase = stackTrace.GetFrame(frameDepth)?.GetMethod();
         if (methodBase == null)
         {
             return "Method name cannot be get";
@@ -57,17 +81,16 @@ bool fillAlsoFirstTwo = true)
         var methodName = methodBase.Name;
         return methodName;
     }
-    #endregion
 
-    #region IsNullOrWhitespace
-    readonly static StringBuilder sbAdditionalInfoInner = new();
-    readonly static StringBuilder sbAdditionalInfo = new();
-    #endregion
-
-    #region OnlyReturnString 
-    internal static string? ArgumentOutOfRangeException(string before, string paramName, string message)
+    /// <summary>
+    /// Formats an argument-out-of-range exception message.
+    /// </summary>
+    /// <param name="prefix">A prefix identifying the location of the exception.</param>
+    /// <param name="parameterName">The name of the parameter that is out of range.</param>
+    /// <param name="message">Additional information about the exception.</param>
+    /// <returns>The formatted exception message.</returns>
+    internal static string? ArgumentOutOfRangeException(string prefix, string parameterName, string message)
     {
-        return CheckBefore(before) + $"{paramName} is out of range, another info: {message}";
+        return CheckBefore(prefix) + $"{parameterName} is out of range, another info: {message}";
     }
-    #endregion
 }

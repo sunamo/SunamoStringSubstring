@@ -1,27 +1,43 @@
 namespace SunamoStringSubstring._sunamo.SunamoExceptions;
 
-// EN: Variable names have been checked and replaced with self-descriptive names
-// CZ: Názvy proměnných byly zkontrolovány a nahrazeny samopopisnými názvy
+/// <summary>
+/// Provides methods for throwing formatted exceptions with detailed context information.
+/// </summary>
 internal partial class ThrowEx
 {
-    internal static bool ArgumentOutOfRangeException(string argName, string message = "")
-    { return ThrowIsNotNull(Exceptions.ArgumentOutOfRangeException(FullNameOfExecutedCode(), argName, message)); }
+    /// <summary>
+    /// Throws an <see cref="ArgumentOutOfRangeException"/> with the specified argument name and optional message.
+    /// </summary>
+    /// <param name="argumentName">The name of the argument that is out of range.</param>
+    /// <param name="message">An optional message describing the error.</param>
+    /// <returns>True if the exception message was not null.</returns>
+    internal static bool ArgumentOutOfRangeException(string argumentName, string message = "")
+    { return ThrowIsNotNull(Exceptions.ArgumentOutOfRangeException(FullNameOfExecutedCode(), argumentName, message)); }
 
-
-    #region Other
+    /// <summary>
+    /// Returns the fully qualified name (type.method) of the code that is currently executing.
+    /// </summary>
+    /// <returns>A string in the format "TypeFullName.MethodName".</returns>
     internal static string FullNameOfExecutedCode()
     {
-        Tuple<string, string, string> placeOfExc = Exceptions.PlaceOfException();
-        string f = FullNameOfExecutedCode(placeOfExc.Item1, placeOfExc.Item2, true);
-        return f;
+        Tuple<string, string, string> placeOfException = Exceptions.PlaceOfException();
+        string fullName = FullNameOfExecutedCode(placeOfException.Item1, placeOfException.Item2, true);
+        return fullName;
     }
 
-    static string FullNameOfExecutedCode(object type, string methodName, bool fromThrowEx = false)
+    /// <summary>
+    /// Returns the fully qualified name (type.method) from the given type and method name.
+    /// </summary>
+    /// <param name="type">The type object, which can be a <see cref="Type"/>, <see cref="MethodBase"/>, string, or any object.</param>
+    /// <param name="methodName">The method name, or null to determine it from the call stack.</param>
+    /// <param name="isFromThrowEx">When true, adjusts the stack frame depth to account for the ThrowEx call chain.</param>
+    /// <returns>A string in the format "TypeFullName.MethodName".</returns>
+    private static string FullNameOfExecutedCode(object type, string methodName, bool isFromThrowEx = false)
     {
         if (methodName == null)
         {
             int depth = 2;
-            if (fromThrowEx)
+            if (isFromThrowEx)
             {
                 depth++;
             }
@@ -29,14 +45,14 @@ internal partial class ThrowEx
             methodName = Exceptions.CallingMethod(depth);
         }
         string typeFullName;
-        if (type is Type type2)
+        if (type is Type typeValue)
         {
-            typeFullName = type2.FullName ?? "Type cannot be get via type is Type type2";
+            typeFullName = typeValue.FullName ?? "Type cannot be get via type is Type type2";
         }
-        else if (type is MethodBase method)
+        else if (type is MethodBase methodBase)
         {
-            typeFullName = method.ReflectedType?.FullName ?? "Type cannot be get via type is MethodBase method";
-            methodName = method.Name;
+            typeFullName = methodBase.ReflectedType?.FullName ?? "Type cannot be get via type is MethodBase method";
+            methodName = methodBase.Name;
         }
         else if (type is string)
         {
@@ -44,24 +60,29 @@ internal partial class ThrowEx
         }
         else
         {
-            Type t = type.GetType();
-            typeFullName = t.FullName ?? "Type cannot be get via type.GetType()";
+            Type objectType = type.GetType();
+            typeFullName = objectType.FullName ?? "Type cannot be get via type.GetType()";
         }
         return string.Concat(typeFullName, ".", methodName);
     }
 
-    internal static bool ThrowIsNotNull(string? exception, bool reallyThrow = true)
+    /// <summary>
+    /// Throws an exception if the exception message is not null.
+    /// </summary>
+    /// <param name="exceptionMessage">The exception message to evaluate.</param>
+    /// <param name="isReallyThrowing">When true, actually throws the exception; when false, only returns whether it would have thrown.</param>
+    /// <returns>True if the exception message was not null; false otherwise.</returns>
+    internal static bool ThrowIsNotNull(string? exceptionMessage, bool isReallyThrowing = true)
     {
-        if (exception != null)
+        if (exceptionMessage != null)
         {
             Debugger.Break();
-            if (reallyThrow)
+            if (isReallyThrowing)
             {
-                throw new Exception(exception);
+                throw new Exception(exceptionMessage);
             }
             return true;
         }
         return false;
     }
-    #endregion
 }

@@ -1,94 +1,95 @@
 namespace SunamoStringSubstring;
 
+/// <summary>
+/// Provides helper methods for safe substring operations that suppress IDE0057 analyzer messages.
+/// </summary>
 public class SHSubstring
 {
     /// <summary>
-    ///     1 of 2 method which call just BCL to use everywhere to disable message "IDE0057 Substring can be simplified"
+    /// Returns a substring starting from the specified index to the end of the string.
+    /// One of two methods that call BCL directly to suppress IDE0057 "Substring can be simplified" message.
     /// </summary>
-    /// <param name="name"></param>
-    /// <param name="v1"></param>
-    /// <param name="v2"></param>
-    /// <returns></returns>
-    public static string SubstringStart(string name, int v1)
+    /// <param name="text">The source string to extract a substring from.</param>
+    /// <param name="startIndex">The zero-based starting character position.</param>
+    /// <returns>A substring starting at <paramref name="startIndex"/>.</returns>
+    public static string SubstringStart(string text, int startIndex)
     {
-        return name.Substring(v1);
-    }
-
-    public static string SubstringIfAvailableStart(string name, int v1)
-    {
-        if (name.Length > v1) return name.Substring(v1);
-
-        return name;
-    }
-
-
-    public static string Substring(string sql, int indexFrom, int indexTo,
-        bool returnInputIfInputIsShorterThanA3 = false)
-    {
-        return Substring(sql, indexFrom, indexTo,
-            new SubstringArgs { returnInputIfInputIsShorterThanA3 = returnInputIfInputIsShorterThanA3 });
+        return text.Substring(startIndex);
     }
 
     /// <summary>
-    ///     Start at 0
-    ///     Usage: MethodOfOccuredFromStackTrace
+    /// Returns a substring starting from the specified index if the string is long enough; otherwise returns the original string.
     /// </summary>
-    /// <param name="input"></param>
-    /// <param name="lenght"></param>
-    /// <returns></returns>
-    public static string SubstringIfAvailable(string input, int lenght)
+    /// <param name="text">The source string to extract a substring from.</param>
+    /// <param name="startIndex">The zero-based starting character position.</param>
+    /// <returns>A substring starting at <paramref name="startIndex"/> if available; otherwise the original <paramref name="text"/>.</returns>
+    public static string SubstringIfAvailableStart(string text, int startIndex)
     {
-        return input.Length > lenght ? input.Substring(0, lenght) : input;
+        if (text.Length > startIndex) return text.Substring(startIndex);
+
+        return text;
     }
 
     /// <summary>
-    ///     2 of 2 method which call just BCL to use everywhere to disable message "IDE0057 Substring can be simplified"
+    /// Returns a substring between the specified indices with an option to return input if it is shorter than indexTo.
     /// </summary>
-    /// <param name="vr"></param>
-    /// <param name="from"></param>
-    /// <param name="length"></param>
-    /// <returns></returns>
-    private static string SubstringLength(string vr, int from, int length)
+    /// <param name="text">The source string to extract a substring from.</param>
+    /// <param name="indexFrom">The zero-based starting index.</param>
+    /// <param name="indexTo">The zero-based ending index (exclusive).</param>
+    /// <param name="isReturningInputWhenShorterThanIndexTo">When true, returns the original input if it is shorter than <paramref name="indexTo"/>.</param>
+    /// <returns>The extracted substring, the original input, null if input is null, or an empty string depending on conditions.</returns>
+    public static string? Substring(string? text, int indexFrom, int indexTo,
+        bool isReturningInputWhenShorterThanIndexTo = false)
     {
-        if (from < vr.Length)
-            if (length < vr.Length)
-                return vr.Substring(from, length);
-        return string.Empty;
+        return Substring(text, indexFrom, indexTo,
+            new SubstringArgs { IsReturningInputWhenShorterThanIndexTo = isReturningInputWhenShorterThanIndexTo });
     }
 
     /// <summary>
-    ///     POZOR, tato metoda se změnila, nyní automaticky přičítá k indexu od 1
-    ///     When I want to include delimiter, add to A3 +1
+    /// Returns a substring of the specified length from the beginning if the string is long enough; otherwise returns the original string.
     /// </summary>
-    /// <param name="sql"></param>
-    /// <param name="p"></param>
-    /// <param name="p_3"></param>
-    public static string Substring(string sql, int indexFrom, int indexTo, SubstringArgs a = null)
+    /// <param name="text">The source string.</param>
+    /// <param name="length">The maximum number of characters to return from the start.</param>
+    /// <returns>A substring of the specified <paramref name="length"/> if available; otherwise the original <paramref name="text"/>.</returns>
+    public static string SubstringIfAvailable(string text, int length)
     {
-        if (a == null) a = SubstringArgs.Instance;
+        return text.Length > length ? text.Substring(0, length) : text;
+    }
 
-        if (sql == null) return null;
+    /// <summary>
+    /// Returns a substring between the specified indices with configurable behavior via <see cref="SubstringArgs"/>.
+    /// Automatically handles edge cases such as out-of-range indices.
+    /// </summary>
+    /// <param name="text">The source string to extract a substring from.</param>
+    /// <param name="indexFrom">The zero-based starting index.</param>
+    /// <param name="indexTo">The zero-based ending index (exclusive).</param>
+    /// <param name="args">Optional configuration arguments controlling edge-case behavior.</param>
+    /// <returns>The extracted substring, the original input, null if input is null, or an empty string depending on conditions and <paramref name="args"/>.</returns>
+    public static string? Substring(string? text, int indexFrom, int indexTo, SubstringArgs? args = null)
+    {
+        if (args == null) args = SubstringArgs.Instance;
 
-        var tl = sql.Length;
+        if (text == null) return null;
+
+        var textLength = text.Length;
 
         if (indexFrom > indexTo)
         {
-            if (a.returnInputIfIndexFromIsLessThanIndexTo)
-                return sql;
+            if (args.IsReturningInputWhenIndexFromExceedsIndexTo)
+                return text;
             ThrowEx.ArgumentOutOfRangeException("indexFrom", "indexFrom is lower than indexTo");
         }
 
-        if (tl > indexFrom)
+        if (textLength > indexFrom)
         {
-            if (tl > indexTo)
+            if (textLength > indexTo)
             {
-                return sql.Substring(indexFrom, indexTo - indexFrom);
+                return text.Substring(indexFrom, indexTo - indexFrom);
             }
 
-            if (a.returnInputIfInputIsShorterThanA3) return sql;
+            if (args.IsReturningInputWhenShorterThanIndexTo) return text;
         }
 
-        // must return string.Empty, not null, because null cant be save to many of columns in db
         return string.Empty;
     }
 }
