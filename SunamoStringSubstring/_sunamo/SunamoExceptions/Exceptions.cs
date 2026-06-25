@@ -1,25 +1,12 @@
 namespace SunamoStringSubstring._sunamo.SunamoExceptions;
 
-/// <summary>
-/// Provides helper methods for exception message formatting and stack trace inspection.
-/// </summary>
 internal sealed partial class Exceptions
 {
-    /// <summary>
-    /// Prepends a prefix to an error message if the prefix is not null or whitespace.
-    /// </summary>
-    /// <param name="prefix">The prefix to prepend, or null/empty for no prefix.</param>
-    /// <returns>The formatted prefix followed by ": " or an empty string.</returns>
     internal static string CheckBefore(string prefix)
     {
         return string.IsNullOrWhiteSpace(prefix) ? string.Empty : prefix + ": ";
     }
 
-    /// <summary>
-    /// Retrieves the type name, method name, and full stack trace text of the calling code.
-    /// </summary>
-    /// <param name="isFillingAlsoFirstTwo">When true, also extracts the type and method name from the first non-ThrowEx frame.</param>
-    /// <returns>A tuple containing type name, method name, and the joined stack trace lines.</returns>
     internal static Tuple<string, string, string> PlaceOfException(
         bool isFillingAlsoFirstTwo = true)
     {
@@ -49,12 +36,6 @@ internal sealed partial class Exceptions
         return new Tuple<string, string, string>(typeName, methodName, string.Join(Environment.NewLine, lines));
     }
 
-    /// <summary>
-    /// Extracts the type name and method name from a single stack trace line.
-    /// </summary>
-    /// <param name="stackTraceLine">A single line from a stack trace.</param>
-    /// <param name="typeName">The extracted type name.</param>
-    /// <param name="methodName">The extracted method name.</param>
     internal static void TypeAndMethodName(string stackTraceLine, out string typeName, out string methodName)
     {
         var afterAt = stackTraceLine.Split("at ")[1].Trim();
@@ -65,11 +46,6 @@ internal sealed partial class Exceptions
         typeName = string.Join(".", parts);
     }
 
-    /// <summary>
-    /// Returns the name of the calling method at the specified frame depth.
-    /// </summary>
-    /// <param name="frameDepth">The number of frames to skip in the call stack (default is 1).</param>
-    /// <returns>The name of the calling method, or an error message if it cannot be determined.</returns>
     internal static string CallingMethod(int frameDepth = 1)
     {
         StackTrace stackTrace = new();
@@ -82,13 +58,6 @@ internal sealed partial class Exceptions
         return methodName;
     }
 
-    /// <summary>
-    /// Formats an argument-out-of-range exception message.
-    /// </summary>
-    /// <param name="prefix">A prefix identifying the location of the exception.</param>
-    /// <param name="parameterName">The name of the parameter that is out of range.</param>
-    /// <param name="message">Additional information about the exception.</param>
-    /// <returns>The formatted exception message.</returns>
     internal static string? ArgumentOutOfRangeException(string prefix, string parameterName, string message)
     {
         return CheckBefore(prefix) + $"{parameterName} is out of range, another info: {message}";
