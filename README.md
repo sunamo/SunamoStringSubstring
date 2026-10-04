@@ -1,5 +1,10 @@
 # SunamoStringSubstring
 
+## Short description
+
+Knihovna s pomocnými metodami pro bezpečné získávání podřetězců bez výjimek při špatných indexech. Součást sbírky pinp s testy a Runnerem.
+
+
 Provides helper methods for safe substring operations in .NET.
 
 ## Overview
